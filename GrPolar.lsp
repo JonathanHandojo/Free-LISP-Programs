@@ -9,8 +9,8 @@
 ;;;  This function is called first without any arguments, which will then return an enhanced     ;;;
 ;;;  function accepting three arguments:                                                         ;;;
 ;;;                                                                                              ;;;
-;;;  bpt - the base point for polar tracking                                                     ;;;
-;;;  ppt - the relative point for polar tracking                                                 ;;;
+;;;  bpt - the base point for polar tracking in UCS                                              ;;;
+;;;  ppt - the relative point for polar tracking in UCS                                          ;;;
 ;;;  rb - 'T' to display rubber-band line from 'bpt' to 'ppt'... 'nil' otherwise                 ;;;
 ;;;                                                                                              ;;;
 ;;;  If successful, the returned function returns the snapped point to the polar tracking in     ;;;
@@ -128,7 +128,7 @@
 							  (if
 							      (and LM:GrText LM:DisplayGrText)
 							      (list 'LM:DisplayGrText '(trans ppt 2 1)
-								    '(LM:GrText (strcat "Polar: " (rtos (distance bpt catch)) " < " (rtos (* (/ 180 pi) x)) "°")) colsnap
+								    '(LM:GrText (strcat "Polar: " (rtos (distance bpt catch)) " < " (rtos (* (/ 180 pi) x)) "Â°")) colsnap
 								    15 -30
 								    )
 							      )
