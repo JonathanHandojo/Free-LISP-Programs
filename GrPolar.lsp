@@ -9,8 +9,8 @@
 ;;;  This function is called first without any arguments, which will then return an enhanced     ;;;
 ;;;  function accepting three arguments:                                                         ;;;
 ;;;                                                                                              ;;;
-;;;  bpt - the base point for polar tracking in UCS                                              ;;;
-;;;  ppt - the relative point for polar tracking in UCS                                          ;;;
+;;;  bpt - the base point for polar tracking                                                     ;;;
+;;;  ppt - the relative point for polar tracking                                                 ;;;
 ;;;  rb - 'T' to display rubber-band line from 'bpt' to 'ppt'... 'nil' otherwise                 ;;;
 ;;;                                                                                              ;;;
 ;;;  If successful, the returned function returns the snapped point to the polar tracking in     ;;;
@@ -128,7 +128,7 @@
 							  (if
 							      (and LM:GrText LM:DisplayGrText)
 							      (list 'LM:DisplayGrText '(trans ppt 2 1)
-								    '(LM:GrText (strcat "Polar: " (rtos (distance bpt catch)) " < " (rtos (* (/ 180 pi) x)) "Â°")) colsnap
+								    '(LM:GrText (strcat "Polar: " (rtos (distance bpt catch)) " < " (rtos (* (/ 180 pi) x)) "°")) colsnap
 								    15 -30
 								    )
 							      )
@@ -199,39 +199,46 @@
 	)
     )
 
+;; JH:str->lst --> Jonathan Handojo
+;; Parses a string into a list using a specified delimiter
+;; str - string to parse
+;; del - delimiter string
+
+(defun JH:str->lst (str del / l rtn src)
+    (setq l (1+ (strlen del)))
+    (while (setq src (vl-string-search del str))
+	(setq rtn (cons (substr str 1 src) rtn)
+	      str (substr str (+ src l))
+	      )
+	)
+    (reverse (cons str rtn))
+    )
+
 ;; JH:GrPolar:pointfromstring --> Jonathan Handojo
 ;; Returns the reference point supplied from a string (ex. @10,20 or @10<135)
 ;; pt - base point
 ;; str - reference string
 
 (defun JH:GrPolar:pointfromstring (pt str / lst)
+    (if	(wcmatch str "`@*")
+	(setq str (substr str 2))
+	(setq pt '(0.0 0.0 0.0))
+    )
     (cond
-	((wcmatch str "`@*")
-	 (setq str (substr str 2))
-	 (cond
-	     ((and
-		  (<= 2 (length (setq lst (fl:str->lst str ","))) 3)
-		  (vl-every 'numberp (setq lst (mapcar 'distof lst)))
-	      )
-	      (mapcar '+ pt lst)
-	     )
-	     ((and
-		  (= 2 (length (setq lst (fl:str->lst str "<"))))
-		  (vl-every 'numberp (setq lst (mapcar 'distof lst)))
-	      )
-	      (polar pt (* (cadr lst) (/ pi 180)) (car lst))
-	     )
-	 )
-	)
 	((and
-	     (<= 2 (length (setq lst (fl:str->lst str ","))) 3)
+	     (<= 2 (length (setq lst (JH:str->lst str ","))) 3)
 	     (vl-every 'numberp (setq lst (mapcar 'distof lst)))
 	 )
-	 lst
+	 (mapcar '+ pt lst)
+	)
+	((and
+	     (= 2 (length (setq lst (JH:str->lst str "<"))))
+	     (vl-every 'numberp (setq lst (mapcar 'distof lst)))
+	 )
+	 (polar pt (* (cadr lst) (/ pi 180)) (car lst))
 	)
     )
 )
-
 
 ;; OLE -> ACI  -  Lee Mac
 ;; Args: c - [int] OLE Colour
